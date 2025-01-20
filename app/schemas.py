@@ -96,3 +96,25 @@ class BookListResponse(BaseModel):
     next_page: str | None = None
     total_pages: int
     total_items: int
+
+
+class AuthorListResponse(BaseModel):
+    """
+    Schema for paginated list of authors.
+
+    Attributes:
+        authors (list[Author]): List of authors on the current page.
+        prev_page (str | None): URL for the previous page,
+            None if current page is first.
+        next_page (str | None): URL for the next page, None if current page is last.
+        total_pages (int): Total number of pages available.
+        total_items (int): Total number of items across all pages.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    authors: list[Author]
+    prev_page: str | None = None
+    next_page: str | None = None
+    total_pages: int
+    total_items: int
