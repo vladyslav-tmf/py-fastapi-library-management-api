@@ -170,7 +170,7 @@ def get_books(
         if not author:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Author with ID {author_id} not found."
+                detail=f"Author with ID {author_id} not found.",
             )
 
     books, total_items, total_pages = crud.get_books_with_pagination(
