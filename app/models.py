@@ -42,10 +42,8 @@ class Book(Base):
         author (Author): Reference to the author object.
 
     Notes:
-        The model enforces unique constraints for:
+        The model enforces unique constraint for:
         - Combination of title and author_id.
-        - Combination of title and publication_date.
-        - Combination of title and summary.
     """
 
     __tablename__ = "books"
@@ -60,8 +58,6 @@ class Book(Base):
 
     __table_args__ = (
         UniqueConstraint("title", "author_id", name="unique_title_author"),
-        UniqueConstraint("title", "publication_date", name="unique_title_date"),
-        UniqueConstraint("title", "summary", name="unique_title_summary"),
     )
 
     def __repr__(self) -> str:
