@@ -79,7 +79,9 @@ def get_authors_with_pagination(
     return _paginate_query(query, page, per_page)
 
 
-def create_book(db: Session, book: schemas.BookBase, author_id: int) -> models.Book | None:
+def create_book(
+    db: Session, book: schemas.BookBase, author_id: int
+) -> models.Book | None:
     """
     Create a new book in the database.
 
@@ -104,7 +106,9 @@ def create_book(db: Session, book: schemas.BookBase, author_id: int) -> models.B
     return new_book
 
 
-def get_books_with_pagination(db: Session, page: int, per_page: int, author_id: int | None = None) -> tuple[list, int, int]:
+def get_books_with_pagination(
+    db: Session, page: int, per_page: int, author_id: int | None = None
+) -> tuple[list, int, int]:
     """
     Retrieve a paginated list of books from the database.
     If author_id is provided, returns only books by that author.
