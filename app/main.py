@@ -15,7 +15,9 @@ books_router = APIRouter(prefix=f"{API_PREFIX}/books", tags=["books"])
 Base.metadata.create_all(bind=engine)
 
 
-def _build_pagination_params(page: int, per_page: int, author_id: int | None = None) -> dict[str, int]:
+def _build_pagination_params(
+    page: int, per_page: int, author_id: int | None = None
+) -> dict[str, int]:
     """
     Build query parameters for pagination URLs.
 
