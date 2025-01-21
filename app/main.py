@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -11,6 +13,26 @@ authors_router = APIRouter(prefix=f"{API_PREFIX}/authors", tags=["authors"])
 books_router = APIRouter(prefix=f"{API_PREFIX}/books", tags=["books"])
 
 Base.metadata.create_all(bind=engine)
+
+
+def _build_pagination_params(page: int, per_page: int, author_id: int | None = None) -> dict[str, int]:
+    """
+    Build query parameters for pagination URLs.
+
+    Attributes:
+        page (int): The page number.
+        per_page (int): Number of items per page.
+        author_id (int | None): Optional author ID for filtering.
+
+    Returns:
+        dict[str, int]: Dictionary with query parameters.
+    """
+    params = {"page": page, "per_page": per_page}
+
+    if author_id:
+        params["author_id"] = author_id
+
+    return params
 
 
 @authors_router.post(
@@ -62,18 +84,21 @@ def get_authors(
         db, page, per_page
     )
 
+    prev_page_url = None
+    next_page_url = None
+
+    if page > 1:
+        params = _build_pagination_params(page - 1, per_page)
+        prev_page_url = f"{API_PREFIX}/authors?{urlencode(params)}"
+
+    if page < total_pages:
+        params = _build_pagination_params(page + 1, per_page)
+        next_page_url = f"{API_PREFIX}/authors?{urlencode(params)}"
+
     return schemas.AuthorListResponse(
         authors=authors,
-        prev_page=(
-            f"{API_PREFIX}/authors?page={page - 1}&per_page={per_page}"
-            if page > 1
-            else None
-        ),
-        next_page=(
-            f"{API_PREFIX}/authors?page={page + 1}&per_page={per_page}"
-            if page < total_pages
-            else None
-        ),
+        prev_page=prev_page_url,
+        next_page=next_page_url,
         total_pages=total_pages,
         total_items=total_items,
     )
@@ -177,26 +202,21 @@ def get_books(
         db, page, per_page, author_id
     )
 
-    prev_page = (
-        f"{API_PREFIX}/books?page={page - 1}&per_page={per_page}" if page > 1 else None
-    )
-    next_page = (
-        f"{API_PREFIX}/books?page={page + 1}&per_page={per_page}"
-        if page < total_pages
-        else None
-    )
-    author_query_param = f"&author_id={author_id}"
+    prev_page_url = None
+    next_page_url = None
 
-    if author_id and prev_page:
-        prev_page += author_query_param
+    if page > 1:
+        params = _build_pagination_params(page - 1, per_page, author_id)
+        prev_page_url = f"{API_PREFIX}/books?{urlencode(params)}"
 
-    if author_id and next_page:
-        next_page += author_query_param
+    if page < total_pages:
+        params = _build_pagination_params(page + 1, per_page, author_id)
+        next_page_url = f"{API_PREFIX}/books?{urlencode(params)}"
 
     return schemas.BookListResponse(
         books=books,
-        prev_page=prev_page,
-        next_page=next_page,
+        prev_page=prev_page_url,
+        next_page=next_page_url,
         total_pages=total_pages,
         total_items=total_items,
     )
